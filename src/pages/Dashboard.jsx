@@ -62,7 +62,7 @@ const Dashboard = () => {
       return (
         <div className="bg-white p-3 border border-gray-200 shadow-md rounded-lg">
           <p className="font-semibold text-gray-700">{payload[0].name}</p>
-          <p className="text-blue-600">${payload[0].value.toFixed(2)}</p>
+          <p className="text-blue-600">₹{payload[0].value.toFixed(2)}</p>
         </div>
       );
     }
@@ -89,7 +89,7 @@ const Dashboard = () => {
             {loading ? (
               <div className="h-8 w-24 bg-gray-200 animate-pulse rounded mt-1"></div>
             ) : (
-              <h3 className="text-2xl font-bold text-gray-800">${monthlyTotal.toFixed(2)}</h3>
+              <h3 className="text-2xl font-bold text-gray-800">₹{monthlyTotal.toFixed(2)}</h3>
             )}
           </div>
         </div>
@@ -184,7 +184,7 @@ const Dashboard = () => {
                       axisLine={false} 
                       tickLine={false} 
                       tick={{ fill: '#6b7280', fontSize: 12 }} 
-                      tickFormatter={(value) => `$${value}`}
+                      tickFormatter={(value) => `₹${value}`}
                     />
                     <Tooltip content={<CustomTooltip />} cursor={{fill: '#f9fafb'}} />
                     <Bar dataKey="value" fill="#6366f1" radius={[4, 4, 0, 0]}>
