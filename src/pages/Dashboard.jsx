@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useMode } from '../context/ModeContext';
 import api from '../api/axios';
-import { DollarSign, TrendingUp, Calendar, AlertCircle } from 'lucide-react';
+import { DollarSign, TrendingUp, Calendar } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { 
   PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer, 
   BarChart, Bar, XAxis, YAxis, CartesianGrid
@@ -12,7 +13,6 @@ const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'
 const Dashboard = () => {
   const { mode } = useMode();
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   
   const [monthlyTotal, setMonthlyTotal] = useState(0);
   const [weeklyData, setWeeklyData] = useState([]);
@@ -50,9 +50,8 @@ const Dashboard = () => {
       setWeeklyData(weekly);
       setMonthlyData(monthly);
       setMonthlyTotal(totalMonthly);
-      setError(null);
     } catch (err) {
-      setError('Failed to fetch dashboard data');
+      toast.error('Failed to fetch dashboard data');
     } finally {
       setLoading(false);
     }
@@ -78,13 +77,6 @@ const Dashboard = () => {
           <p className="text-gray-500 mt-1">Overview of your {mode.toLowerCase()} expenses.</p>
         </div>
       </div>
-
-      {error && (
-        <div className="p-4 bg-red-50 border-l-4 border-red-500 flex items-center text-red-700 rounded-r-md">
-          <AlertCircle className="w-5 h-5 mr-2" />
-          {error}
-        </div>
-      )}
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

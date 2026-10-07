@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ModeProvider } from './context/ModeContext';
+import { Toaster } from 'react-hot-toast';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import Expenses from './pages/Expenses';
@@ -10,6 +11,7 @@ function App() {
   return (
     <ModeProvider>
       <Router>
+        <Toaster position="top-right" />
         <Routes>
           <Route path="/" element={<Layout />}>
             <Route index element={<Navigate to="/dashboard" replace />} />

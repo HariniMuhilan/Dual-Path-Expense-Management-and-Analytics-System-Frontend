@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useMode } from '../context/ModeContext';
 import api from '../api/axios';
-import { PlusCircle, AlertCircle, CheckCircle2, Receipt } from 'lucide-react';
+import { PlusCircle, Receipt } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const Expenses = () => {
   const { mode } = useMode();
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(false);
 
   const [formData, setFormData] = useState({
     amount: '',
@@ -16,6 +15,13 @@ const Expenses = () => {
     description: '',
     categoryId: ''
   });
+
+  // Calculate 2-year constraint for the date picker
+  const today = new Date();
+  const maxDate = today.toISOString().split('T')[0];
+  const twoYearsAgo = new Date();
+  twoYearsAgo.setFullYear(today.getFullYear() - 2);
+  const minDate = twoYearsAgo.toISOString().split('T')[0];
 
   useEffect(() => {
     fetchCategories();
@@ -31,7 +37,7 @@ const Expenses = () => {
         setFormData(prev => ({ ...prev, categoryId: response.data[0].id }));
       }
     } catch (err) {
-      setError('Failed to load categories');
+      toast.error('Failed to load categories');
     }
   };
 
@@ -43,24 +49,20 @@ const Expenses = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
-    setSuccess(false);
 
     try {
       await api.post('/api/expenses', {
         ...formData,
         amount: parseFloat(formData.amount)
       });
-      setSuccess(true);
+      toast.success('Expense logged successfully!');
       setFormData(prev => ({
         ...prev,
         amount: '',
         description: '',
-        // Keep date and category for rapid entry
       }));
-      setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to log expense');
+      toast.error(err.response?.data?.message || 'Failed to log expense');
     } finally {
       setLoading(false);
     }
@@ -83,20 +85,6 @@ const Expenses = () => {
             {mode}
           </span>
         </div>
-
-        {error && (
-          <div className="p-4 bg-red-50 border-l-4 border-red-500 flex items-center text-red-700 m-6 mb-0 rounded-r-md">
-            <AlertCircle className="w-5 h-5 mr-2" />
-            {error}
-          </div>
-        )}
-        
-        {success && (
-          <div className="p-4 bg-green-50 border-l-4 border-green-500 flex items-center text-green-700 m-6 mb-0 rounded-r-md">
-            <CheckCircle2 className="w-5 h-5 mr-2" />
-            Expense logged successfully!
-          </div>
-        )}
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -121,12 +109,14 @@ const Expenses = () => {
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">Date</label>
+              <label className="block text-sm font-medium text-gray-700">Date (Within last 2 years)</label>
               <input
                 type="date"
                 name="expenseDate"
                 value={formData.expenseDate}
                 onChange={handleChange}
+                min={minDate}
+                max={maxDate}
                 required
                 className="block w-full border border-gray-300 rounded-lg py-2.5 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
               />
@@ -170,7 +160,7 @@ const Expenses = () => {
             <button
               type="submit"
               disabled={loading || categories.length === 0}
-              className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white 
+              className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white transition-colors
                 ${loading || categories.length === 0 ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'}`}
             >
               {loading ? (

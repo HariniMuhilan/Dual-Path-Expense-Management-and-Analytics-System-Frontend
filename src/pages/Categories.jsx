@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useMode } from '../context/ModeContext';
 import api from '../api/axios';
-import { Trash2, Plus, AlertCircle } from 'lucide-react';
+import { Trash2, Plus } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const Categories = () => {
   const { mode } = useMode();
   const [categories, setCategories] = useState([]);
   const [newCategory, setNewCategory] = useState('');
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchCategories();
@@ -19,9 +19,8 @@ const Categories = () => {
       setLoading(true);
       const response = await api.get(`/api/categories?type=${mode}`);
       setCategories(response.data);
-      setError(null);
     } catch (err) {
-      setError('Failed to fetch categories');
+      toast.error('Failed to fetch categories');
     } finally {
       setLoading(false);
     }
@@ -40,8 +39,9 @@ const Categories = () => {
       });
       setNewCategory('');
       fetchCategories();
+      toast.success('Category added!');
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to add category');
+      toast.error(err.response?.data?.message || 'Failed to add category');
     }
   };
 
@@ -51,8 +51,9 @@ const Categories = () => {
     try {
       await api.delete(`/api/categories/${id}`);
       fetchCategories();
+      toast.success('Category deleted!');
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to delete category. Default categories cannot be deleted.');
+      toast.error(err.response?.data?.message || 'Failed to delete category.');
     }
   };
 
@@ -63,13 +64,6 @@ const Categories = () => {
           <h2 className="text-xl font-bold text-gray-800">Manage Categories ({mode})</h2>
           <p className="text-sm text-gray-500 mt-1">Add or remove custom categories for your {mode.toLowerCase()} expenses.</p>
         </div>
-
-        {error && (
-          <div className="p-4 bg-red-50 border-l-4 border-red-500 flex items-center text-red-700">
-            <AlertCircle className="w-5 h-5 mr-2" />
-            {error}
-          </div>
-        )}
 
         <div className="p-6">
           <form onSubmit={handleAddCategory} className="flex gap-4 mb-8">
