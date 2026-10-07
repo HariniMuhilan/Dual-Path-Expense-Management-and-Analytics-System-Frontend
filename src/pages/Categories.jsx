@@ -34,7 +34,9 @@ const Categories = () => {
     try {
       await api.post('/api/categories', {
         name: newCategory.trim(),
-        type: mode
+        type: mode,
+        isDefault: false,
+        isActive: true
       });
       setNewCategory('');
       fetchCategories();
